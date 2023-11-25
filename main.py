@@ -34,11 +34,9 @@ def main(args):
     print(f"START!\nargs:\n{args}\n")
 
     # 1. Load and Split the dataset into train / valid / test with ratio, and get user_group (for FL)
-    train_dataset, valid_dataset, test_dataset, \
-        user_group_train, user_group_valid, user_group_test = fl_get_train_valid_test_dataset(args,
-                                                                                              train_ratio=None,
-                                                                                              valid_ratio=None
-                                                                                              )
+    train_dataset, test_dataset, user_group_train, user_group_test = fl_get_train_valid_test_dataset(args,
+                                                                                                    train_ratio=None
+                                                                                                    )
 
     # # 2. Define the model
     # model = get_model(args.model, args)
