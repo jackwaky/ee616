@@ -23,7 +23,7 @@ def iid(dataset, num_users):
 
     return dict_users  # dictionary of user_idx:int, sample_indices: set
 
-def non_iid(args, dataset, num_users, num_classes_per_client):
+def non_iid(args, dataset, num_users, num_classes_per_client, classes_to_clients):
 
     """
     Sample non-iid client data from dataset
@@ -41,7 +41,8 @@ def non_iid(args, dataset, num_users, num_classes_per_client):
 
     dict_users = {i : set() for i in range(num_users)}
 
-    classes_to_clients = allocate_clients_to_classes(num_users, num_classes_per_client, num_classes)
+    if classes_to_clients == None:
+        classes_to_clients = allocate_clients_to_classes(num_users, num_classes_per_client, num_classes)
     num_items_per_class = {i : int(len(class_indices[i]) / len(classes_to_clients[i])) for i in range(num_classes)}
     clients_to_classes = defaultdict(list)
 
@@ -62,7 +63,7 @@ def non_iid(args, dataset, num_users, num_classes_per_client):
     # for i in range(num_users):
     #     print(f"# of datas in client {i} : {len(dict_users[i])}")
 
-    return dict_users  # dictionary of user_idx:int, sample_indices: set
+    return dict_users, classes_to_clients  # dictionary of user_idx:int, sample_indices: set
 
 
 def allocate_clients_to_classes(num_users, num_classes_per_client, num_classes):

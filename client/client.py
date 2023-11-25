@@ -15,12 +15,12 @@ class Client():
 
         self.train_dataloader = DataLoader(
             DatasetSplit(train_dataset, user_datapoint_indices_train), batch_size=args.bs,
-            shuffle=True)
+            shuffle=True, drop_last=True)
 
         self.test_dataloader = DataLoader(
             DatasetSplit(test_dataset, user_datapoint_indices_test),
             batch_size=args.bs,
-            shuffle=False)
+            shuffle=False, drop_last=True)
 
     def local_train(self, model, global_round):
         model.train()
