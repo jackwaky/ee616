@@ -1,6 +1,7 @@
 import time
 from tqdm import tqdm
 import numpy as np
+import random
 import copy
 import torch
 
@@ -35,7 +36,8 @@ class Server():
             print(f'Federated Learning round {epoch + 1}/{self.args.federated_round}')
 
             # Client Selection (Random)
-            selected_user_indices = np.random.choice(list(self.user_group_train.keys()), size=m, replace=False)
+            # selected_user_indices = np.random.choice(list(self.user_group_train.keys()), size=m, replace=False)
+            selected_user_indices = random.sample(self.user_group_train.keys(), m)
             print(f'In round {epoch + 1}, # of selected clients : {len(selected_user_indices)}, selected clients are {selected_user_indices}')
             local_weight_list, local_loss_list = [], []
 

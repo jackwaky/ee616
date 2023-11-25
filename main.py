@@ -42,7 +42,7 @@ def main(args):
     # model = get_model(args.model, args)
     model = get_model(args.model, args)
 
-
+    # # 3. Define the server
     server = Server(args, model, train_dataset, test_dataset, user_group_train, user_group_test)
     server.train()
     server.test()
