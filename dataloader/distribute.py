@@ -39,7 +39,7 @@ def generate_label_skew(args, dataset, num_users, num_classes_per_client, classe
     :param num_classes_per_client:
     :return: dict of image index (key=user_index, value=corresponding data)
     """
-    num_classes = args.configs.MNISTOpt["num_classes"]
+    num_classes = args.configs["num_classes"]
 
     labels = np.array([data[1] for data in dataset])
     class_indices = defaultdict(list)
@@ -57,7 +57,6 @@ def generate_label_skew(args, dataset, num_users, num_classes_per_client, classe
         for client in clients:
             clients_to_classes[client].append(cls)
 
-    print(clients_to_classes)
     if dataset == None:
         return None
 
@@ -91,7 +90,7 @@ def allocate_clients_to_classes(num_users, num_classes_per_client, num_classes):
 
     return clients_per_class
 
-def generate_augmentations():
+def generate_augmentations(args):
 
     crop_prob = random.uniform(0.5, 1)
     color_prob = random.uniform(0.5, 1)
@@ -100,14 +99,22 @@ def generate_augmentations():
     color_s = random.uniform(1, 2)
     blur_s = random.uniform(0.8, 1.2)
 
-    random_crop = augs.get_random_crop(32, crop_s, crop_prob)
-    color_distortion = augs.get_color_distortion(color_s, color_prob)
-    gaussian_blur = augs.get_gaussian_blur(32, blur_s, blur_prob)
-    augmentations = transforms.Compose([
-        random_crop,
-        color_distortion,
-        gaussian_blur
-    ])
+    if args.dataset == 'mnist':
+        random_crop = augs.get_random_crop(28, crop_s, crop_prob)
+        color_distortion = augs.get_color_distortion(color_s, color_prob)
+        augmentations = transforms.Compose([
+            random_crop,
+            color_distortion,
+        ])
+    else:
+        random_crop = augs.get_random_crop(32, crop_s, crop_prob)
+        color_distortion = augs.get_color_distortion(color_s, color_prob)
+        gaussian_blur = augs.get_gaussian_blur(args, 32, blur_s, blur_prob)
+        augmentations = transforms.Compose([
+            random_crop,
+            color_distortion,
+            gaussian_blur
+        ])
 
     return augmentations
 
@@ -122,7 +129,7 @@ def generate_feature_skew(args, dataset, user_group, augmentations=None):
         # print(cur_user_indices)
         cur_user_dataset = Subset(dataset, cur_user_indices)
         if augmentations == None:
-            augmentation = generate_augmentations()
+            augmentation = generate_augmentations(args)
             aug_dict[i] = augmentation
         else:
             augmentation = augmentations[i]

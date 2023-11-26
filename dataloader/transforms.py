@@ -5,7 +5,7 @@ from torchvision.transforms import transforms
 
 class GaussianBlur(object):
     """blur a single image on CPU"""
-    def __init__(self, kernel_size):
+    def __init__(self, args, kernel_size):
         radias = kernel_size // 2
         kernel_size = radias * 2 + 1
         self.blur_h = nn.Conv2d(3, 3, kernel_size=(kernel_size, 1),
@@ -40,11 +40,11 @@ class GaussianBlur(object):
 
         return img
 
-def get_gaussian_blur(size=224, s=1, prob=1):
+def get_gaussian_blur(args, size=224, s=1, prob=1):
     assert(s<=1.2 and s>=0.8)
     assert(prob<=1 and prob>=0.5)
     gaussian_blur = transforms.Compose([
-        GaussianBlur(kernel_size=int(0.1*s * size))
+        GaussianBlur(args, kernel_size=int(0.1*s * size))
     ])
     gaussian_blur = transforms.RandomApply([gaussian_blur], p=prob)
     return gaussian_blur
