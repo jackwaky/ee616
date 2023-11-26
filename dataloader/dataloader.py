@@ -1,7 +1,7 @@
 import numpy as np
 import random
 from torchvision import datasets, transforms
-from .iid import iid, non_iid
+from .distribute import iid, generate_label_skew, generate_feature_skew
 
 
 def fl_get_train_valid_test_dataset(args, train_ratio):
@@ -39,9 +39,13 @@ def fl_get_train_valid_test_dataset(args, train_ratio):
         user_group_test = iid(test_dataset, args.num_user)
 
     elif args.data_distribution == 'non_iid':
-        user_group_train, classes_to_clients = non_iid(args, train_dataset, args.num_user, args.num_classes_per_client, None)
+        user_group_train, classes_to_clients = generate_label_skew(args, train_dataset, args.num_user, args.num_classes_per_client, None)
         # user_group_valid = non_iid(args, valid_dataset, args.num_user, args.num_classes_per_client)
-        user_group_test, _ = non_iid(args, test_dataset, args.num_user, args.num_classes_per_client, classes_to_clients)
+        user_group_test, _ = generate_label_skew(args, test_dataset, args.num_user, args.num_classes_per_client, classes_to_clients)
+
+        train_dataset, user_group_train, augmentations = generate_feature_skew(args, train_dataset, user_group_train, None)
+        test_dataset, user_group_test, _ = generate_feature_skew(args, test_dataset, user_group_test, augmentations)
+
 
     print(f'# of train dataset : {len(train_dataset)}, # of test dataset : {len(test_dataset)}')
 

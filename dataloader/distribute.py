@@ -1,6 +1,13 @@
 import numpy as np
 from collections import defaultdict
 
+import random
+import dataloader.transforms as augs
+from torchvision.transforms import transforms
+
+from torch.utils.data import Dataset, Subset, ConcatDataset
+import torch
+
 def iid(dataset, num_users):
     """
     Sample iid client data from MNIST dataset
@@ -23,7 +30,7 @@ def iid(dataset, num_users):
 
     return dict_users  # dictionary of user_idx:int, sample_indices: set
 
-def non_iid(args, dataset, num_users, num_classes_per_client, classes_to_clients):
+def generate_label_skew(args, dataset, num_users, num_classes_per_client, classes_to_clients):
 
     """
     Sample non-iid client data from dataset
@@ -60,8 +67,7 @@ def non_iid(args, dataset, num_users, num_classes_per_client, classes_to_clients
             # update all_indices to exclude the previous indices assigned for the previous user
             class_indices[cls] = list(set(class_indices[cls]) - dict_users[i])
 
-    # for i in range(num_users):
-    #     print(f"# of datas in client {i} : {len(dict_users[i])}")
+
 
     return dict_users, classes_to_clients  # dictionary of user_idx:int, sample_indices: set
 
@@ -84,3 +90,60 @@ def allocate_clients_to_classes(num_users, num_classes_per_client, num_classes):
             clients_per_class[cls].append(user)
 
     return clients_per_class
+
+def generate_augmentations():
+
+    crop_prob = random.uniform(0.5, 1)
+    color_prob = random.uniform(0.5, 1)
+    blur_prob = random.uniform(0.5, 1)
+    crop_s = random.uniform(1, 2)
+    color_s = random.uniform(1, 2)
+    blur_s = random.uniform(0.8, 1.2)
+
+    random_crop = augs.get_random_crop(32, crop_s, crop_prob)
+    color_distortion = augs.get_color_distortion(color_s, color_prob)
+    gaussian_blur = augs.get_gaussian_blur(32, blur_s, blur_prob)
+    augmentations = transforms.Compose([
+        random_crop,
+        color_distortion,
+        gaussian_blur
+    ])
+
+    return augmentations
+
+def generate_feature_skew(args, dataset, user_group, augmentations=None):
+    aug_dict = {}
+    skewed_dataset = []
+    new_user_group = {}
+    start_index = 0
+    for i in range(args.num_user):
+        cur_user_group = user_group[i]
+        cur_user_indices = [int(j) for j in cur_user_group]
+        # print(cur_user_indices)
+        cur_user_dataset = Subset(dataset, cur_user_indices)
+        if augmentations == None:
+            augmentation = generate_augmentations()
+            aug_dict[i] = augmentation
+        else:
+            augmentation = augmentations[i]
+
+        cur_user_dataset = AugmentDataset(cur_user_dataset, augmentation)
+        new_user_group[i] = set([j for j in range(start_index, start_index + len(cur_user_dataset))])
+        skewed_dataset.append(cur_user_dataset)
+        start_index += len(cur_user_dataset)
+
+    skewed_dataset = ConcatDataset(skewed_dataset)
+    return skewed_dataset, new_user_group, aug_dict
+
+class AugmentDataset(Dataset):
+    def __init__(self, dataset, augmentation):
+        self.subset = dataset  # data of all clients
+        self.transform = augmentation
+    def __len__(self):
+        return len(self.subset)
+
+    def __getitem__(self, item):
+        x, y = self.subset[item]
+        if self.transform:
+            x = self.transform(x)
+        return x, y

@@ -4,6 +4,7 @@ import numpy as np
 from torch.utils.data import DataLoader, Dataset
 import torch
 
+import random
 
 class Client():
     def __init__(self, args, train_dataset, test_dataset, user_datapoint_indices_train, user_datapoint_indices_test, user_idx):
@@ -21,6 +22,7 @@ class Client():
             DatasetSplit(test_dataset, user_datapoint_indices_test),
             batch_size=args.bs,
             shuffle=False, drop_last=True)
+
 
     def local_train(self, model, global_round):
         model.train()
