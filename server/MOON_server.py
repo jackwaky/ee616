@@ -9,9 +9,11 @@ from sklearn.metrics import balanced_accuracy_score
 
 from torch.utils.data import DataLoader
 
-from client.client import Client
+from client.MOON_client import MOON_Client
 
-class Server():
+import copy
+
+class MOON_Server():
     def __init__(self, args, model, train_dataset, test_dataset, user_group_train, user_group_test):
 
         self.args = args
@@ -21,6 +23,9 @@ class Server():
         self.test_dataset = test_dataset
         self.user_group_train = user_group_train
         self.user_group_test = user_group_test
+
+        # Setting for MOON
+        self.previous_nets = {i: copy.deepcopy(model) for i in self.user_group_train.keys()}
 
 
     def train(self):
@@ -42,7 +47,7 @@ class Server():
             local_weight_list, local_loss_list = [], []
 
             for cur_client_idx in selected_user_indices:
-                local_client = Client(args = self.args,
+                local_client = MOON_Client(args = self.args,
                                            train_dataset = self.train_dataset,
                                            test_dataset = self.test_dataset,
                                            user_datapoint_indices_train = self.user_group_train[cur_client_idx],
@@ -50,10 +55,13 @@ class Server():
                                            user_idx = cur_client_idx)
 
                 local_weight, local_loss = local_client.local_train(model = copy.deepcopy(self.global_model),
-                                                       global_round = epoch)
+                                                       previous_model = copy.deepcopy(self.previous_nets[cur_client_idx]))
 
                 local_weight_list.append(copy.deepcopy(local_weight))
                 local_loss_list.append(local_loss)
+
+                # Update previous local model
+                self.previous_nets[cur_client_idx].load_state_dict(local_weight)
 
             self.global_weights = self.average_weights(local_weight_list)
             self.global_model.load_state_dict(self.global_weights)

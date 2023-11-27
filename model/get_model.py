@@ -1,6 +1,7 @@
 from .cnn import CNN
 from .nn import NN
 import torchvision.models as models
+from .models import ModelFedCon
 
 def get_model(model_name, args):
     conv_channels = -1
@@ -10,14 +11,11 @@ def get_model(model_name, args):
         raise DeprecationWarning
 
     elif model_name == "resnet18":
-        return models.resnet18(num_classes=10, zero_init_residual=True)
-    elif model_name == "resnet34":
-        return models.resnet34(num_classes=10, zero_init_residual=True)
-    elif model_name == "resnet50":
-        return models.resnet50(num_classes=10, zero_init_residual=True)
+        model = ModelFedCon(base_model='resnet18', out_dim=256, n_classes=10)
+        return model
     elif model_name == 'cnn':
-        return CNN(args)
-    elif model_name == 'nn':
-        return NN(args)
+        model = ModelFedCon(base_model='simple-cnn-mnist', out_dim=256, n_classes=10)
+        return model
+
     else:
         raise NotImplementedError

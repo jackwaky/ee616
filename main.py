@@ -13,6 +13,7 @@ from model.get_model import get_model
 
 # Server
 from server.server import Server
+from server.MOON_server import MOON_Server
 
 import configs
 from arg_parser import parse_arguments
@@ -43,7 +44,12 @@ def main(args):
     model = get_model(args.model, args)
 
     # # 3. Define the server
-    server = Server(args, model, train_dataset, test_dataset, user_group_train, user_group_test)
+    if args.method == "base":
+        server = Server(args, model, train_dataset, test_dataset, user_group_train, user_group_test)
+    elif args.method == "moon":
+        server = MOON_Server(args, model, train_dataset, test_dataset, user_group_train, user_group_test)
+    else:
+        raise NotImplementedError
     server.train()
     server.test()
 

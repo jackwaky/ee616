@@ -94,27 +94,19 @@ def generate_augmentations(args):
 
     crop_prob = random.uniform(0.5, 1)
     color_prob = random.uniform(0.5, 1)
-    blur_prob = random.uniform(0.5, 1)
     crop_s = random.uniform(1, 2)
     color_s = random.uniform(1, 2)
-    blur_s = random.uniform(0.8, 1.2)
 
     if args.dataset == 'mnist':
         random_crop = augs.get_random_crop(28, crop_s, crop_prob)
-        color_distortion = augs.get_color_distortion(color_s, color_prob)
-        augmentations = transforms.Compose([
-            random_crop,
-            color_distortion,
-        ])
+
     else:
         random_crop = augs.get_random_crop(32, crop_s, crop_prob)
-        color_distortion = augs.get_color_distortion(color_s, color_prob)
-        gaussian_blur = augs.get_gaussian_blur(args, 32, blur_s, blur_prob)
-        augmentations = transforms.Compose([
-            random_crop,
-            color_distortion,
-            gaussian_blur
-        ])
+    color_distortion = augs.get_color_distortion(color_s, color_prob)
+    augmentations = transforms.Compose([
+        # random_crop,
+        color_distortion,
+    ])
 
     return augmentations
 

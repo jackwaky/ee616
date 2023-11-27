@@ -15,6 +15,8 @@ def parse_arguments():
                         help="Model structure")
     parser.add_argument("--gpu", type=int, default=7, choices=[0, 1, 2, 3, 4, 5, 6, 7],
                         help='Set specific gpu to train')
+    parser.add_argument("--method", type=str, default="base",
+                        help="Model structure")
 
     # For FL training
     parser.add_argument("--data_distribution", type=str, default="non_iid",
