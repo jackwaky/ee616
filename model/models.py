@@ -219,9 +219,11 @@ class SimpleCNNMNIST_header(nn.Module):
     def __init__(self, input_dim, hidden_dims, output_dim=10):
         super(SimpleCNNMNIST_header, self).__init__()
         self.conv1 = nn.Conv2d(1, 6, 5)
+        self.bn1 = nn.BatchNorm2d(6)
         self.relu = nn.ReLU()
         self.pool = nn.MaxPool2d(2, 2)
         self.conv2 = nn.Conv2d(6, 16, 5)
+        self.bn2 = nn.BatchNorm2d(16)
 
         # for now, we hard coded this network
         # i.e. we fix the number of hidden layers i.e. 2 layers
@@ -231,8 +233,8 @@ class SimpleCNNMNIST_header(nn.Module):
 
     def forward(self, x):
 
-        x = self.pool(self.relu(self.conv1(x)))
-        x = self.pool(self.relu(self.conv2(x)))
+        x = self.pool(self.relu(self.bn1(self.conv1(x))))
+        x = self.pool(self.relu(self.bn2(self.conv2(x))))
         x = x.view(-1, 16 * 4 * 4)
 
         x = self.relu(self.fc1(x))
