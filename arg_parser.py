@@ -43,6 +43,12 @@ def parse_arguments():
     parser.add_argument("--bs", type=int, default=64,
                         help="Batch size")
 
+    # for MOON
+    parser.add_argument("--mu", type=float, default=1,
+                        help="weight for contrastive loss")
+    parser.add_argument("--temperature", type=float, default=0.5,
+                        help="temperature for contrastive loss")
+
 
     args = parser.parse_args()
     return args
