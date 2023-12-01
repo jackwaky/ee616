@@ -11,7 +11,7 @@ CORRUPTIONS = ('spatter', 'dotted_line', 'zigzag', 'scale', 'translate',
 domain_label_dict = {domain: i+1 for i, domain in enumerate(CORRUPTIONS)}
 
 class MNIST_Dataset(torch.utils.data.Dataset):
-    def __init__(self, train=True, domain=None, severity=0, transform=None, file_path='home/twinklesu/mnist_c/mnist_c'):
+    def __init__(self, train=True, domain=None, severity=0, transform=None, file_path='/home/twinklesu/mnist_c/mnist_c'):
         self.domain = domain
         self.img_shape = 32
         self.features = None
