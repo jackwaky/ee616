@@ -43,7 +43,7 @@ def main(args):
     fig, axs = plt.subplots(num_clients, 2, figsize=(15, 3 * num_clients), sharex=True)
 
     for i in range(num_clients):
-        client_samples = user_group_train[i]["sample_indices"]
+        client_samples = user_group_train[i]
         class_labels = train_dataset.tensors[1][list(client_samples)]
         domain_labels = train_dataset.tensors[2][list(client_samples)]
 

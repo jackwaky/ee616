@@ -32,7 +32,8 @@ class Server():
         total_num_of_clients = len(self.user_group_train)
         m = int(total_num_of_clients * self.args.percentage_selected_client)
 
-        for epoch in tqdm(range(self.args.federated_round)):
+        # for epoch in tqdm(range(self.args.federated_round)):
+        for epoch in range(self.args.federated_round):
             print(f'Federated Learning round {epoch + 1}/{self.args.federated_round}')
 
             # Client Selection (Random)
@@ -78,7 +79,7 @@ class Server():
         correct_labels_list = []
 
         with torch.no_grad():
-            for batch_idx, (inputs, labels) in enumerate(testloader):
+            for batch_idx, (inputs, labels, _) in enumerate(testloader):
                 inputs, labels = inputs.to(self.args.device), labels.to(self.args.device)
 
                 _, _, outputs = self.global_model(inputs)

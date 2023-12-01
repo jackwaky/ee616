@@ -18,9 +18,8 @@ class Client():
             DatasetSplit(train_dataset, user_datapoint_indices_train), batch_size=args.bs,
             shuffle=True, drop_last=True)
 
-        self.test_dataloader = DataLoader(
-            DatasetSplit(test_dataset, user_datapoint_indices_test),
-            batch_size=args.bs,
+        # USE FULL TEST DATA
+        self.test_dataloader = DataLoader(test_dataset, batch_size=args.bs,
             shuffle=False, drop_last=True)
 
 
