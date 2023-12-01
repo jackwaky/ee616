@@ -2,6 +2,8 @@ import numpy as np
 import random
 from torchvision import datasets, transforms
 from .distribute import iid, generate_label_skew, generate_feature_skew
+from .Cifar10Cdistribute import *
+from .Cifar10Cdataset import *
 
 
 def fl_get_train_valid_test_dataset(args, train_ratio):
@@ -34,19 +36,53 @@ def fl_get_train_valid_test_dataset(args, train_ratio):
         valid_dataset = None
         test_dataset = datasets.CIFAR10(args.configs['file_path'], train=False, download=True,
                                         transform=transform_test)
+    
+    elif args.dataset == 'cifar10c':
+        args.configs = args.configs.CIFAR10COpt
+        transform_train = transforms.Compose([
+            transforms.RandomCrop(32, padding=4),
+            transforms.RandomHorizontalFlip(),
+            transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)),
+        ])
 
+        transform_test = transforms.Compose([
+            transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)),
+        ])
+        train_dataset = CIFAR10C(file_path=args.configs['file_path'], train=True,
+                                         transform=transform_train)
+        valid_dataset = None
+        test_dataset = CIFAR10C(file_path=args.configs['file_path'], train=False, 
+                                        transform=transform_test)
+        
+    #Code for distribute dataset.
     if args.data_distribution == 'iid':
-        user_group_train = iid(train_dataset, args.num_user)
-        # user_group_valid = iid(valid_dataset, args.num_user)
-        user_group_test = iid(test_dataset, args.num_user)
+        if args.dataset == 'cifar10c':
+            user_group_train = distribute_iid_data(train_dataset, args.num_user, args.ratio_samples_per_client)
+            user_group_test = distribute_iid_data(test_dataset, args.num_user, args.ratio_samples_per_client)
+        else:
+            user_group_train = iid(train_dataset, args.num_user)
+            # user_group_valid = iid(valid_dataset, args.num_user)
+            user_group_test = iid(test_dataset, args.num_user)
+            
+    elif args.data_distribution == 'non_iid_class':
+        user_group_train = distribute_non_iid_class(train_dataset, args.num_user, args.num_classes_per_client, args.ratio_samples_per_client)
+        user_group_test = distribute_non_iid_class(test_dataset, args.num_user, args.num_classes_per_client), args.ratio_samples_per_client
+    
+    elif args.data_distribution == 'non_iid_domain':
+        user_group_train = distribute_non_iid_domain(train_dataset, args.num_user, args.num_domains_per_client, args.ratio_samples_per_client)
+        user_group_test = distribute_non_iid_domain(test_dataset, args.num_user, args.num_domains_per_client, args.ratio_samples_per_client)
 
     elif args.data_distribution == 'non_iid':
-        user_group_train, classes_to_clients = generate_label_skew(args, train_dataset, args.num_user, args.num_classes_per_client, None)
-        # user_group_valid = non_iid(args, valid_dataset, args.num_user, args.num_classes_per_client)
-        user_group_test, _ = generate_label_skew(args, test_dataset, args.num_user, args.num_classes_per_client, classes_to_clients)
+        if args.dataset == 'cifar10c':
+            user_group_train = distribute_non_iid_both(train_dataset, args.num_user, args.num_classes_per_client, args.num_domains_per_client, args.ratio_samples_per_client)
+            user_group_test = distribute_non_iid_both(test_dataset, args.num_user, args.num_classes_per_client, args.num_domains_per_client, args.ratio_samples_per_client)
+        else:
+            user_group_train, classes_to_clients = generate_label_skew(args, train_dataset, args.num_user, args.num_classes_per_client, None)
+            # user_group_valid = non_iid(args, valid_dataset, args.num_user, args.num_classes_per_client)
+            user_group_test, _ = generate_label_skew(args, test_dataset, args.num_user, args.num_classes_per_client, classes_to_clients)
 
-        train_dataset, user_group_train, augmentations = generate_feature_skew(args, train_dataset, user_group_train, None)
-        test_dataset, user_group_test, _ = generate_feature_skew(args, test_dataset, user_group_test, augmentations)
+            train_dataset, user_group_train, augmentations = generate_feature_skew(args, train_dataset, user_group_train, None)
+            test_dataset, user_group_test, _ = generate_feature_skew(args, test_dataset, user_group_test, augmentations)
 
 
     print(f'# of train dataset : {len(train_dataset)}, # of test dataset : {len(test_dataset)}')

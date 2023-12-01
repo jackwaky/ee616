@@ -18,13 +18,19 @@ def parse_arguments():
     parser.add_argument("--method", type=str, default="base",
                         help="Model structure")
 
-    # For FL training
-    parser.add_argument("--data_distribution", type=str, default="non_iid",
-                        help="Choose data distribution")
+    # For FL data distribution
+    parser.add_argument("--data_distribution", type=str, default="iid",
+                        help="Choose data distribution: iid, non_iid_class, non_iid_domain, non_iid")
     parser.add_argument("--num_user", type=int, default=100,
                         help="Number of artificial clients in FL training")
+    parser.add_argument("--ratio_samples_per_client", type=float, default=1,
+                        help="Ratio of num samples per client: ratio*(num_samples/num_clients)")
     parser.add_argument("--num_classes_per_client", type=int, default=2,
                         help="Number of classes each client will have in non-iid setting")
+    parser.add_argument("--num_domains_per_client", type=int, default=2,
+                        help="Number of domains each client will have in non-iid setting")
+    
+    # For FL training
     parser.add_argument("--federated_round", type=int, default=100,
                         help="Number of global rounds in FL training")
     parser.add_argument("--local_epoch", type=int, default=5,

@@ -14,3 +14,11 @@ CIFAR10Opt = {
     'batch_size': 64,
     'learning_rate': 0.1,
 }
+
+CIFAR10COpt = {
+    'num_classes': 10,
+    'file_path': '/mnt/sting/chahh/TTA/dataset/CIFAR-10-C',
+    'batch_size': 64,
+    'learning_rate': 0.1,
+    'num_users': 10,
+}
