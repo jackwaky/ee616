@@ -51,13 +51,14 @@ def fl_get_train_valid_test_dataset(args, train_ratio):
         train_dataset = CIFAR10C(file_path=args.configs['file_path'], train=True,
                                          transform=transform_train)
         valid_dataset = None
-        test_dataset = CIFAR10C(file_path=args.configs['file_path'], train=False, 
+        test_dataset = CIFAR10C_Dataset(file_path=args.configs['file_path'], train=False, 
                                         transform=transform_test)
         
     #Code for distribute dataset.
     if args.data_distribution == 'iid':
         if args.dataset == 'cifar10c':
             user_group_train = distribute_iid_data(train_dataset, args.num_user, args.ratio_samples_per_client)
+            # NOTE_Test data distribution is strictly iid.
             user_group_test = distribute_iid_data(test_dataset, args.num_user, args.ratio_samples_per_client)
         else:
             user_group_train = iid(train_dataset, args.num_user)
@@ -66,16 +67,19 @@ def fl_get_train_valid_test_dataset(args, train_ratio):
             
     elif args.data_distribution == 'non_iid_class':
         user_group_train = distribute_non_iid_class(train_dataset, args.num_user, args.num_classes_per_client, args.ratio_samples_per_client)
-        user_group_test = distribute_non_iid_class(test_dataset, args.num_user, args.num_classes_per_client), args.ratio_samples_per_client
+        # NOTE_Test data distribution is strictly iid.
+        user_group_test = distribute_iid_data(test_dataset, args.num_user, args.ratio_samples_per_client)
     
     elif args.data_distribution == 'non_iid_domain':
         user_group_train = distribute_non_iid_domain(train_dataset, args.num_user, args.num_domains_per_client, args.ratio_samples_per_client)
-        user_group_test = distribute_non_iid_domain(test_dataset, args.num_user, args.num_domains_per_client, args.ratio_samples_per_client)
+        # NOTE_Test data distribution is strictly iid.
+        user_group_test = distribute_iid_data(test_dataset, args.num_user, args.ratio_samples_per_client)
 
     elif args.data_distribution == 'non_iid':
         if args.dataset == 'cifar10c':
             user_group_train = distribute_non_iid_both(train_dataset, args.num_user, args.num_classes_per_client, args.num_domains_per_client, args.ratio_samples_per_client)
-            user_group_test = distribute_non_iid_both(test_dataset, args.num_user, args.num_classes_per_client, args.num_domains_per_client, args.ratio_samples_per_client)
+            # NOTE_Test data distribution is strictly iid.
+            user_group_test = distribute_iid_data(test_dataset, args.num_user, args.ratio_samples_per_client)
         else:
             user_group_train, classes_to_clients = generate_label_skew(args, train_dataset, args.num_user, args.num_classes_per_client, None)
             # user_group_valid = non_iid(args, valid_dataset, args.num_user, args.num_classes_per_client)
