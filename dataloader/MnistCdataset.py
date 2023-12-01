@@ -40,6 +40,7 @@ class MNIST_Dataset(torch.utils.data.Dataset):
         data = data.astype(np.float32)/ 255.0
         self.features = data
         self.class_labels = np.load(path + self.label_filename)
+        print(len(self.class_labels))
 
         self.domain_labels = np.array([domain_label_dict[self.domain] for _ in range(len(self.features))])
 
