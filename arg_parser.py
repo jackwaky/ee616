@@ -23,7 +23,7 @@ def parse_arguments():
                         help="Choose data distribution: iid, non_iid_class, non_iid_domain, non_iid")
     parser.add_argument("--num_user", type=int, default=100,
                         help="Number of artificial clients in FL training")
-    parser.add_argument("--ratio_samples_per_client", type=float, default=1,
+    parser.add_argument("--ratio_samples_per_client", type=float, default=0.5,
                         help="Ratio of num samples per client: ratio*(num_samples/num_clients)")
     parser.add_argument("--num_classes_per_client", type=int, default=2,
                         help="Number of classes each client will have in non-iid setting")
@@ -48,6 +48,10 @@ def parse_arguments():
                         help="weight for contrastive loss")
     parser.add_argument("--temperature", type=float, default=0.5,
                         help="temperature for contrastive loss")
+
+    # Client Selection method
+    parser.add_argument("--selection", type=str, default="random",
+                        help="Client selection method in server")
 
 
     args = parser.parse_args()

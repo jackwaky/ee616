@@ -13,6 +13,8 @@ from client.MOON_client import MOON_Client
 
 import copy
 
+from utils import get_domain_info, select_clients_uniformly
+
 class MOON_Server():
     def __init__(self, args, model, train_dataset, test_dataset, user_group_train, user_group_test):
 
@@ -26,6 +28,9 @@ class MOON_Server():
 
         # Setting for MOON
         self.previous_nets = {i: copy.deepcopy(model) for i in self.user_group_train.keys()}
+
+        # key : client idx, value : domain idx
+        self.domain_info = get_domain_info(train_dataset, user_group_train)
 
 
     def train(self):
@@ -41,8 +46,12 @@ class MOON_Server():
             print(f'Federated Learning round {epoch + 1}/{self.args.federated_round}')
 
             # Client Selection (Random)
-            # selected_user_indices = np.random.choice(list(self.user_group_train.keys()), size=m, replace=False)
-            selected_user_indices = random.sample(self.user_group_train.keys(), m)
+            if self.args.selection == 'random':
+                selected_user_indices = random.sample(self.user_group_train.keys(), m)
+            # Uniformly select the clients in domain
+            elif self.args.selection == 'uniform':
+                selected_user_indices = select_clients_uniformly(self.domain_info, m)
+
             print(f'In round {epoch + 1}, # of selected clients : {len(selected_user_indices)}, selected clients are {selected_user_indices}')
             local_weight_list, local_loss_list = [], []
 

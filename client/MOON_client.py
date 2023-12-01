@@ -91,5 +91,5 @@ class DatasetSplit(Dataset):
         return len(self.curr_user_indices)
 
     def __getitem__(self, item):
-        input_data, label = self.all_dataset[self.curr_user_indices[item]]  # only items related to the current user (not all clients)
-        return torch.tensor(input_data), torch.tensor(label)
+        input_data, label, _ = self.all_dataset[self.curr_user_indices[item]]  # only items related to the current user (not all clients)
+        return input_data.clone().detach(), label.clone().detach()
