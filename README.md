@@ -31,3 +31,6 @@ It is repository for the EE616 project "RealAugFL: Augmentation for Real-World F
     
     --lr: Learning rate (default: 0.1, type: float).
     --bs: Batch size (default: 64, type: int).
+
+### How to visualize the data distribution per client
+    python visualize_data_per_client.py --dataset cifar10c --num_user 20 --ratio_samples_per_client 0.5 --data_distribution non_iid
