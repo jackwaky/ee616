@@ -51,7 +51,7 @@ def fl_get_train_valid_test_dataset(args, train_ratio):
         train_dataset = CIFAR10C(file_path=args.configs['file_path'], train=True,
                                          transform=transform_train)
         valid_dataset = None
-        test_dataset = CIFAR10C_Dataset(file_path=args.configs['file_path'], train=False, 
+        test_dataset = CIFAR10C_Dataset(file_path=args.configs['file_path'], train=False, domain='test',
                                         transform=transform_test)
         
     #Code for distribute dataset.

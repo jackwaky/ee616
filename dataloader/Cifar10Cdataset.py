@@ -54,7 +54,7 @@ class CIFAR10C_Dataset(torch.utils.data.Dataset):
         self.features = data
         self.class_labels = np.load(path + self.label_filename)
         # assume that single domain is passed as List
-        if self.domain=='original':
+        if self.domain=='original' or self.domain=='test':
             self.domain_labels = np.array([0 for i in range(len(self.features))])
         else:
             self.domain_labels = np.array([domain_label_dict[self.domain] for i in range(len(self.features))])

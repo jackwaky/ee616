@@ -15,7 +15,7 @@ def distribute_iid_data(dataset, num_clients, ratio_samples_per_client):
         end_idx = (i + 1) * samples_per_client
         client_samples = indices[start_idx:end_idx]
 
-        distributed_data[i] = {"user_idx": i, "sample_indices": set(client_samples)}
+        distributed_data[i] = set(client_samples)
 
     return distributed_data
 
@@ -39,7 +39,7 @@ def distribute_non_iid_domain(dataset, num_clients, domain_num_per_client, ratio
             client_samples = np.concatenate((client_samples, additional_samples))
 
         np.random.shuffle(client_samples)
-        distributed_data[i] = {"user_idx": i, "sample_indices": set(client_samples)}
+        distributed_data[i] = set(client_samples)
 
     return distributed_data
 
@@ -63,7 +63,7 @@ def distribute_non_iid_class(dataset, num_clients, label_num_per_client, ratio_s
             client_samples = np.concatenate((client_samples, additional_samples))
 
         np.random.shuffle(client_samples)
-        distributed_data[i] = {"user_idx": i, "sample_indices": set(client_samples)}
+        distributed_data[i] = set(client_samples)
 
     return distributed_data
 
@@ -91,6 +91,6 @@ def distribute_non_iid_both(dataset, num_clients, label_num_per_client_class, la
             client_samples = np.concatenate((client_samples, additional_samples))
 
         np.random.shuffle(client_samples)
-        distributed_data[i] = {"user_idx": i, "sample_indices": set(client_samples)}
+        distributed_data[i] = set(client_samples)
 
     return distributed_data
