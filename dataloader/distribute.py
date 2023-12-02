@@ -114,16 +114,18 @@ def generate_feature_skew(args, dataset, user_group, augmentations=None):
     aug_dict = {}
     skewed_dataset = []
     new_user_group = {}
+
     start_index = 0
     for i in range(args.num_user):
         cur_user_group = user_group[i]
         cur_user_indices = [int(j) for j in cur_user_group]
         # print(cur_user_indices)
         cur_user_dataset = Subset(dataset, cur_user_indices)
-        if augmentations == None:
+        if augmentations == None and i % 10 == 0:
             augmentation = generate_augmentations(args)
-            aug_dict[i] = augmentation
-        else:
+            for j in range(i, i+ 10):
+                aug_dict[j] = augmentation
+        elif augmentations != None:
             augmentation = augmentations[i]
 
         cur_user_dataset = AugmentDataset(cur_user_dataset, augmentation)

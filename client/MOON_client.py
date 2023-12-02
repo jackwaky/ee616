@@ -64,10 +64,10 @@ class MOON_Client():
                 nega = cos(feature_local, feature_prev)
                 logits = torch.cat((logits, nega.reshape(-1, 1)), dim=1)
 
-                logits /= 0.5 # temperature in MOON
+                logits /= self.args.temperature # temperature in MOON
                 targets = torch.zeros(inputs.size(0)).to(self.args.device).long()
 
-                loss2 = 1 * self.criterion(logits, targets)
+                loss2 = self.args.mu * self.criterion(logits, targets)
 
                 loss1 = self.criterion(out, labels)
 

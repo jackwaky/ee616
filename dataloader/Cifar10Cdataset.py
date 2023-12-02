@@ -68,7 +68,7 @@ class CIFAR10C_Dataset(torch.utils.data.Dataset):
         return len(self.dataset)
 
     def get_num_domains(self):
-        return len(self.domains)
+        return len(self.domain)
 
     def __getitem__(self, idx):
         if isinstance(idx, torch.Tensor):
