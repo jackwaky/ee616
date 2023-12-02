@@ -7,8 +7,8 @@ from tqdm import tqdm
 def distribute_iid_data(dataset, num_clients, ratio_samples_per_client):
     num_samples = len(dataset)
     samples_per_client = int(ratio_samples_per_client * (num_samples // num_clients))
-    
-    print(f'Number of samples per client : {samples_per_client}')
+
+    print(f'Number of samples per client: {samples_per_client}')
 
     indices = np.arange(num_samples)
     np.random.shuffle(indices)
@@ -23,10 +23,10 @@ def distribute_iid_data(dataset, num_clients, ratio_samples_per_client):
 
     return distributed_data
 
-def distribute_non_iid_domain(dataset, num_clients, domain_num_per_client, ratio_samples_per_client):
+def distrubte_non_iid_domain(dataset, num_clients, domain_num_per_client, ratio_samples_per_client):
     num_samples = len(dataset)
     samples_per_client = int(ratio_samples_per_client * (num_samples // num_clients))
-    
+
     print(f'Number of samples per client : {samples_per_client}')
 
     domain_labels = dataset.tensors[2]
@@ -38,14 +38,14 @@ def distribute_non_iid_domain(dataset, num_clients, domain_num_per_client, ratio
     for i in tqdm(range(num_clients)):
         num_client_samples = 0
         # If the number of selected samples is less than required, sample with replacement
-        while(num_client_samples < samples_per_client):
+        while (num_client_samples < samples_per_client):
             # Randomly select a fixed number of unique domains for each client
             client_domains = np.random.choice(unique_domains, size=domain_num_per_client, replace=False)
             client_samples = np.where(np.isin(domain_labels, client_domains))[0]
 
             # Exclude already selected samples
             client_samples = np.setdiff1d(client_samples, list(selected_samples), assume_unique=True)
-            
+
             num_client_samples = len(client_samples)
 
         np.random.shuffle(client_samples)
@@ -59,7 +59,7 @@ def distribute_non_iid_domain(dataset, num_clients, domain_num_per_client, ratio
 def distribute_non_iid_class(dataset, num_clients, label_num_per_client, ratio_samples_per_client):
     num_samples = len(dataset)
     samples_per_client = int(ratio_samples_per_client * (num_samples // num_clients))
-    
+
     print(f'Number of samples per client : {samples_per_client}')
 
     class_labels = dataset.tensors[1]
@@ -75,12 +75,12 @@ def distribute_non_iid_class(dataset, num_clients, label_num_per_client, ratio_s
             # Randomly select a fixed number of unique classes for each client
             client_classes = np.random.choice(unique_classes, size=label_num_per_client, replace=False)
             client_samples = np.where(np.isin(class_labels, client_classes))[0]
-            
+
             # Exclude already selected samples
             client_samples = np.setdiff1d(client_samples, list(selected_samples), assume_unique=True)
-            
+
             num_client_samples = len(client_samples)
-            
+
         np.random.shuffle(client_samples)
         distributed_data[i] = set(client_samples[:samples_per_client])
 
@@ -89,7 +89,9 @@ def distribute_non_iid_class(dataset, num_clients, label_num_per_client, ratio_s
 
     return distributed_data
 
-def distribute_non_iid_both(dataset, num_clients, label_num_per_client_class, label_num_per_client_domain, ratio_samples_per_client):
+
+def distribute_non_iid_both(dataset, num_clients, label_num_per_client_class, label_num_per_client_domain,
+                            ratio_samples_per_client):
     num_samples = len(dataset)
     samples_per_client = int(ratio_samples_per_client * (num_samples // num_clients))
 
@@ -104,7 +106,7 @@ def distribute_non_iid_both(dataset, num_clients, label_num_per_client_class, la
     for i in tqdm(range(num_clients)):
         num_client_samples = 0
         # If the number of selected samples is less than required, sample with replacement
-        while(num_client_samples < samples_per_client):
+        while (num_client_samples < samples_per_client):
             # Randomly select a fixed number of unique class labels for each client
             client_classes = np.random.choice(np.unique(class_labels), size=label_num_per_client_class, replace=False)
             # Randomly select a fixed number of unique domain labels for each client
