@@ -20,8 +20,7 @@ class MOON_Client():
             DatasetSplit(train_dataset, user_datapoint_indices_train), batch_size=args.bs,
             shuffle=True, drop_last=True)
 
-        self.test_dataloader = DataLoader(
-            DatasetSplit(test_dataset, user_datapoint_indices_test),
+        self.test_dataloader = DataLoader(test_dataset, 
             batch_size=args.bs,
             shuffle=False, drop_last=True)
 
@@ -91,5 +90,5 @@ class DatasetSplit(Dataset):
         return len(self.curr_user_indices)
 
     def __getitem__(self, item):
-        input_data, label = self.all_dataset[self.curr_user_indices[item]]  # only items related to the current user (not all clients)
-        return torch.tensor(input_data), torch.tensor(label)
+        input_data, label, _ = self.all_dataset[self.curr_user_indices[item]]  # only items related to the current user (not all clients)
+        return input_data.clone().detach(), label.clone().detach()
