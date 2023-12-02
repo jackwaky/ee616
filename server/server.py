@@ -10,7 +10,7 @@ from torch.utils.data import DataLoader
 
 from client.client import Client
 
-from utils import get_domain_info, select_clients_uniformly
+from utils import get_domain_info, select_clients_uniformly, select_clients_one_fix
 
 class Server():
     def __init__(self, args, model, train_dataset, test_dataset, user_group_train, user_group_test):
@@ -46,7 +46,9 @@ class Server():
             # Uniformly select the clients in domain
             elif self.args.selection == 'uniform':
                 selected_user_indices = select_clients_uniformly(self.domain_info, m)
-
+            # 50% one group & 50% others -- group A in all round // uniform others
+            elif self.args.selection == 'one_uniform':
+                selected_user_indices = select_clients_one_fix(self.domain_info, m)
 
             print(f'In round {epoch + 1}, # of selected clients : {len(selected_user_indices)}, selected clients are {selected_user_indices}')
             local_weight_list, local_loss_list = [], []

@@ -67,3 +67,51 @@ def select_clients_uniformly(domain_info, num_selected_client):
     # print(verify)
 
     return selected_clients
+
+
+def select_clients_one_fix(domain_info, num_selected_client):
+    # domain_info -> client_idx: {domain numbers}
+    domain_numbers = set()
+    for values in domain_info.values():
+        domain_numbers.union(values)
+
+    # domain for 50%
+    major_domain = np.random.choice(list(domain_numbers))
+    major_domain_clients = []
+    other_domains_clients = []
+    for client, domains in domain_info:
+        if major_domain in domains:
+            major_domain_clients.append(client)
+        else:
+            other_domains_clients.append(client)
+
+    selected_major_domain_clients = []
+    selected_other_domain_clients = []
+
+    # major domain
+    while len(selected_major_domain_clients) < num_selected_client//2 and major_domain_clients:
+        # randomly select a client index
+        client_index = np.random.choice(major_domain_clients)
+        selected_major_domain_clients.append(client_index)
+        major_domain_clients.remove(client_index)
+
+    # minor domain
+    while len(selected_other_domain_clients) < num_selected_client//2 and other_domains_clients:
+        # random selection
+        client_index = np.random.choice(other_domains_clients)
+        selected_other_domain_clients.append(client_index)
+        other_domains_clients.remove(client_index)
+    # when number of other domains clients is less than 50% -> add major client
+    while len(selected_other_domain_clients) < num_selected_client//2 and major_domain_clients:
+        client_index = np.random.choice(major_domain_clients)
+        selected_major_domain_clients.append(client_index)
+        major_domain_clients.remove(client_index)
+
+    selected_clients = selected_major_domain_clients + selected_other_domain_clients
+    return selected_clients
+
+
+# select_client_one_seq
+# select_client_one_rnd
+# select_client_one_round
+
