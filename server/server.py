@@ -10,7 +10,7 @@ from torch.utils.data import DataLoader
 
 from client.client import Client
 
-from utils import get_domain_info, select_clients_uniformly, select_clients_one_fix
+from utils import get_domain_info, select_clients_uniformly, select_clients_one_fix,make_domain_dist
 
 class Server():
     def __init__(self, args, model, train_dataset, test_dataset, user_group_train, user_group_test):
@@ -51,6 +51,10 @@ class Server():
                 selected_user_indices = select_clients_one_fix(self.domain_info, m)
 
             print(f'In round {epoch + 1}, # of selected clients : {len(selected_user_indices)}, selected clients are {selected_user_indices}')
+            
+            selected_domains = make_domain_dist(self.domain_info,selected_user_indices)
+            
+            print(f'Selected domain distribution: {selected_domains}')
             local_weight_list, local_loss_list = [], []
 
             for cur_client_idx in selected_user_indices:

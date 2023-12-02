@@ -115,3 +115,12 @@ def select_clients_one_fix(domain_info, num_selected_client):
 # select_client_one_rnd
 # select_client_one_round
 
+def make_domain_dist(domain_info,selected_user_indices):
+    selected_domains = {}
+    for idx in selected_user_indices:
+        for dom in domain_info[idx]:
+            if dom not in selected_domains.keys():
+                selected_domains[dom] = 1
+            else:
+                selected_domains[dom] += 1
+    return selected_domains
