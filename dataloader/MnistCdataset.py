@@ -10,8 +10,8 @@ CORRUPTIONS = ('spatter', 'dotted_line', 'zigzag', 'scale', 'translate',
 
 domain_label_dict = {domain: i+1 for i, domain in enumerate(CORRUPTIONS)}
 
-class MNIST_Dataset(torch.utils.data.Dataset):
-    def __init__(self, train=True, domain=None, transform=None, file_path='/home/twinklesu/mnist_c/mnist_c'):
+class MNISTC_Dataset(torch.utils.data.Dataset):
+    def __init__(self, train=True, domain=None, transform=None, file_path='/mnt/sting/twinklesu/mnist_c'):
         self.domain = domain
         self.img_shape = 32
         self.features = None
@@ -69,12 +69,16 @@ def MNISTC(**kwargs):
     domain_labels_list = []
 
     for corruption in CORRUPTIONS:
-        corrupted_dataset = MNIST_Dataset(domain=corruption, **kwargs)
-        data_list.append(corrupted_dataset.features)
-        class_labels_list.append(corrupted_dataset.class_labels)
-        domain_labels_list.append(corrupted_dataset.domain_labels)
+        corrupted_dataset = MNISTC_Dataset(domain=corruption, **kwargs)
+        data_list.append(torch.from_numpy(corrupted_dataset.features))
+        class_labels_list.append(torch.from_numpy(corrupted_dataset.class_labels))
+        domain_labels_list.append(torch.from_numpy(corrupted_dataset.domain_labels))
 
-    combined_dataset = torch.utils.data.TensorDataset(data_list, class_labels_list, domain_labels_list)
+    combined_data = torch.cat(data_list, dim=0)
+    combined_class_labels = torch.cat(class_labels_list, dim=0)
+    combined_domain_labels = torch.cat(domain_labels_list, dim=0)
+
+    combined_dataset = torch.utils.data.TensorDataset(combined_data, combined_class_labels, combined_domain_labels)
 
     return combined_dataset
 

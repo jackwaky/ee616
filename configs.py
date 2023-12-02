@@ -22,3 +22,14 @@ CIFAR10COpt = {
     'learning_rate': 0.1,
     'num_users': 10,
 }
+
+MNISTCOpt = {
+    'num_classes': 10,
+    'file_path': '/mnt/sting/twinklesu/mnist_c',
+    'batch_size': 64,
+    'learning_rate': 0.1,
+    'num_users': 10,
+    'input_dim': 784,
+    'weight_decay': 0.0001,
+    'classes': [i for i in range(0, 10)],
+}
