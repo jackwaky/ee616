@@ -60,9 +60,9 @@ def fl_get_train_valid_test_dataset(args, train_ratio):
         args.configs = args.configs.MNISTCOpt
         apply_transform = transforms.Compose([
             transforms.ToTensor(), transforms.Normalize((0.1307,), (0.3081,))])
-        train_dataset = datasets.MNISTC(args.configs['file_path'], train=True, transform=apply_transform)
+        train_dataset = MNISTC(file_path=args.configs['file_path'], train=True, transform=apply_transform)
         valid_dataset = None
-        test_dataset = datasets.MNISTC(args.configs['file_path'], train=False, transform=apply_transform)
+        test_dataset = MNISTC(file_path=args.configs['file_path'], train=False, transform=apply_transform)
         
     #Code for distribute dataset.
     if args.data_distribution == 'iid':
