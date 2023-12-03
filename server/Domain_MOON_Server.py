@@ -93,6 +93,7 @@ class Domain_MOON_Server():
 
             print(f'Selected domain distribution: {selected_domains}')
             local_weight_list, local_loss_list = [], []
+            current_domain_weight_dict = {}
 
             for cur_client_idx in selected_user_indices:
                 local_client = Domain_MOON_Client(args=self.args,
@@ -102,14 +103,26 @@ class Domain_MOON_Server():
                                            user_datapoint_indices_test=self.user_group_test[cur_client_idx],
                                            user_idx=cur_client_idx)
 
+                cur_domain_idx = next(iter(self.domain_info[cur_client_idx]))
+
                 local_weight, local_loss = local_client.local_train(model=copy.deepcopy(self.global_model),
-                                                                    previous_model=copy.deepcopy(self.previous_nets_per_domain[next(iter(self.domain_info[cur_client_idx]))]))
+                                                                    previous_model=copy.deepcopy(self.previous_nets_per_domain[cur_domain_idx]))
 
                 local_weight_list.append(copy.deepcopy(local_weight))
                 local_loss_list.append(local_loss)
 
-                # Update previous local model
-                self.previous_nets_per_domain[next(iter(self.domain_info[cur_client_idx]))].load_state_dict(local_weight)
+                if cur_domain_idx not in current_domain_weight_dict.keys():
+                    current_domain_weight_dict[cur_domain_idx] = [copy.deepcopy(local_weight)]
+                else:
+                    current_domain_weight_dict[cur_domain_idx].append(copy.deepcopy(local_weight))
+
+            print(f"{len(current_domain_weight_dict)}")
+            for key in current_domain_weight_dict.keys():
+                print(f"{len(current_domain_weight_dict[key])}")
+            # Update previous local model
+            for domain_idx in current_domain_weight_dict.keys():
+                cur_domain_weight = self.average_weights(current_domain_weight_dict[domain_idx])
+                self.previous_nets_per_domain[domain_idx].load_state_dict(cur_domain_weight)
 
             self.global_weights = self.average_weights(local_weight_list)
             self.global_model.load_state_dict(self.global_weights)
