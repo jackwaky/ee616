@@ -13,7 +13,7 @@ from client.MOON_client import MOON_Client
 
 import copy
 
-from utils import get_domain_info, select_clients_uniformly
+from utils import get_domain_info, select_clients_uniformly, select_clients_one ,make_domain_dist
 
 class MOON_Server():
     def __init__(self, args, model, train_dataset, test_dataset, user_group_train, user_group_test):
@@ -31,6 +31,9 @@ class MOON_Server():
 
         # key : client idx, value : domain idx
         self.domain_info = get_domain_info(train_dataset, user_group_train)
+        self.domain_numbers = set()
+        for values in self.domain_info.values():
+            self.domain_numbers.update(values)
 
 
     def train(self):
@@ -41,6 +44,8 @@ class MOON_Server():
 
         total_num_of_clients = len(self.user_group_train)
         m = int(total_num_of_clients * self.args.percentage_selected_client)
+        
+        major_domain = np.random.choice(list(self.domain_numbers),size=len(self.domain_numbers),replace=False)
 
         for epoch in range(self.args.federated_round):
             print(f'Federated Learning round {epoch + 1}/{self.args.federated_round}')
@@ -51,8 +56,23 @@ class MOON_Server():
             # Uniformly select the clients in domain
             elif self.args.selection == 'uniform':
                 selected_user_indices = select_clients_uniformly(self.domain_info, m)
+            # ratio one group & 1-ratio others -- group A in all round // random others
+            elif self.args.selection == 'one_fix':
+                selected_user_indices = select_clients_one(domain_info=self.domain_info, num_selected_client=m, domain_numbers=self.domain_numbers, epoch=epoch, major_domain=major_domain, rpd=self.args.federated_round, major_ratio=self.args.major_domain_ratio)
+            elif self.args.selection == 'one_rand':
+                selected_user_indices = select_clients_one(domain_info=self.domain_info, num_selected_client=m, domain_numbers=self.domain_numbers, epoch=epoch, major_domain=None, rpd=1, major_ratio=self.args.major_domain_ratio)
+            elif self.args.selection == 'one_seq': # one_round, round=1 
+                selected_user_indices = select_clients_one(domain_info=self.domain_info, num_selected_client=m, domain_numbers=self.domain_numbers, epoch=epoch, major_domain=major_domain, rpd=1, major_ratio=self.args.major_domain_ratio)
+            elif self.args.selection == 'one_round_rand':
+                selected_user_indices = select_clients_one(domain_info=self.domain_info, num_selected_client=m, domain_numbers=self.domain_numbers, epoch=epoch, major_domain=None, rpd=self.args.rounds_per_domain, major_ratio=self.args.major_domain_ratio)
+            elif self.args.selection == 'one_round_seq':
+                selected_user_indices = select_clients_one(domain_info=self.domain_info, num_selected_client=m, domain_numbers=self.domain_numbers, epoch=epoch, major_domain=major_domain, rpd=self.args.rounds_per_domain, major_ratio=self.args.major_domain_ratio)
 
             print(f'In round {epoch + 1}, # of selected clients : {len(selected_user_indices)}, selected clients are {selected_user_indices}')
+            
+            selected_domains = make_domain_dist(self.domain_info,selected_user_indices)
+            
+            print(f'Selected domain distribution: {selected_domains}')
             local_weight_list, local_loss_list = [], []
 
             for cur_client_idx in selected_user_indices:

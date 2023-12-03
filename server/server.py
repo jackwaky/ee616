@@ -10,7 +10,7 @@ from torch.utils.data import DataLoader
 
 from client.client import Client
 
-from utils import get_domain_info, select_clients_uniformly, select_clients_one_fix,make_domain_dist
+from utils import get_domain_info, select_clients_uniformly, select_clients_one ,make_domain_dist
 
 class Server():
     def __init__(self, args, model, train_dataset, test_dataset, user_group_train, user_group_test):
@@ -25,6 +25,10 @@ class Server():
 
         # key : client idx, value : domain idx
         self.domain_info = get_domain_info(train_dataset, user_group_train)
+        self.domain_numbers = set()
+        for values in self.domain_info.values():
+            self.domain_numbers.update(values)
+            
 
 
     def train(self):
@@ -35,6 +39,8 @@ class Server():
 
         total_num_of_clients = len(self.user_group_train)
         m = int(total_num_of_clients * self.args.percentage_selected_client)
+        
+        major_domain = np.random.choice(list(self.domain_numbers),size=len(self.domain_numbers),replace=False)
 
         # for epoch in tqdm(range(self.args.federated_round)):
         for epoch in range(self.args.federated_round):
@@ -46,9 +52,17 @@ class Server():
             # Uniformly select the clients in domain
             elif self.args.selection == 'uniform':
                 selected_user_indices = select_clients_uniformly(self.domain_info, m)
-            # 50% one group & 50% others -- group A in all round // uniform others
-            elif self.args.selection == 'one_uniform':
-                selected_user_indices = select_clients_one_fix(self.domain_info, m)
+            # ratio one group & 1-ratio others -- group A in all round // random others
+            elif self.args.selection == 'one_fix':
+                selected_user_indices = select_clients_one(domain_info=self.domain_info, num_selected_client=m, domain_numbers=self.domain_numbers, epoch=epoch, major_domain=major_domain, rpd=self.args.federated_round, major_ratio=self.args.major_domain_ratio)
+            elif self.args.selection == 'one_rand':
+                selected_user_indices = select_clients_one(domain_info=self.domain_info, num_selected_client=m, domain_numbers=self.domain_numbers, epoch=epoch, major_domain=None, rpd=1, major_ratio=self.args.major_domain_ratio)
+            elif self.args.selection == 'one_seq': # one_round, round=1 
+                selected_user_indices = select_clients_one(domain_info=self.domain_info, num_selected_client=m, domain_numbers=self.domain_numbers, epoch=epoch, major_domain=major_domain, rpd=1, major_ratio=self.args.major_domain_ratio)
+            elif self.args.selection == 'one_round_rand':
+                selected_user_indices = select_clients_one(domain_info=self.domain_info, num_selected_client=m, domain_numbers=self.domain_numbers, epoch=epoch, major_domain=None, rpd=self.args.rounds_per_domain, major_ratio=self.args.major_domain_ratio)
+            elif self.args.selection == 'one_round_seq':
+                selected_user_indices = select_clients_one(domain_info=self.domain_info, num_selected_client=m, domain_numbers=self.domain_numbers, epoch=epoch, major_domain=major_domain, rpd=self.args.rounds_per_domain, major_ratio=self.args.major_domain_ratio)
 
             print(f'In round {epoch + 1}, # of selected clients : {len(selected_user_indices)}, selected clients are {selected_user_indices}')
             
