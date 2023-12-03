@@ -116,9 +116,6 @@ class Domain_MOON_Server():
                 else:
                     current_domain_weight_dict[cur_domain_idx].append(copy.deepcopy(local_weight))
 
-            print(f"{len(current_domain_weight_dict)}")
-            for key in current_domain_weight_dict.keys():
-                print(f"{len(current_domain_weight_dict[key])}")
             # Update previous local model
             for domain_idx in current_domain_weight_dict.keys():
                 cur_domain_weight = self.average_weights(current_domain_weight_dict[domain_idx])
