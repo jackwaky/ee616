@@ -37,10 +37,6 @@ def parse_arguments():
                         help="Number of local epochs in FL training")
     parser.add_argument("--percentage_selected_client", type=float, default=0.1,
                         help="Percentage of clients to be selected every round")
-    parser.add_argument("--rounds_per_domain", type=int, default=10,
-                        help="Rounds per domain")
-    parser.add_argument("--major_domain_ratio", type=float, default=0.5,
-                        help="Major domain ratio")
 
     parser.add_argument("--lr", type=float, default=0.1,
                         help="Learning rate")
@@ -56,7 +52,10 @@ def parse_arguments():
     # Client Selection method
     parser.add_argument("--selection", type=str, default="random",
                         help="Client selection method in server")
-
+    parser.add_argument("--rounds_per_domain", type=int, default=10,
+                        help="Rounds per domain")
+    parser.add_argument("--major_domain_ratio", type=float, default=0.5,
+                        help="Major domain ratio")
 
     args = parser.parse_args()
     return args

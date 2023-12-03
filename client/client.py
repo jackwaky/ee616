@@ -26,7 +26,8 @@ class Client():
     def local_train(self, model, global_round):
         model.train()
 
-        optimizer = torch.optim.SGD(model.parameters(), lr=self.args.lr)
+        # optimizer = torch.optim.SGD(model.parameters(), lr=self.args.lr)
+        optimizer = torch.optim.Adam(model.parameters(), lr=self.args.lr)
 
         epoch_loss = []
         for local_epoch in range(self.args.local_epoch):

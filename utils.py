@@ -106,10 +106,16 @@ def select_clients_one(domain_info, num_selected_client, domain_numbers, major_d
     # when number of other domains clients is less than ratio -> add major client
     if len(selected_other_domain_clients) < num_selected_client-major_num:
         print(f'WARNING: NOT ENOUGH DATA for selected major ratio {major_ratio}')
+        print(f'WARNING: Major domain num - only{len(selected_major_domain_clients)}')
     while len(selected_other_domain_clients) < num_selected_client-major_num and major_domain_clients:
         client_index = np.random.choice(major_domain_clients)
         selected_other_domain_clients.append(client_index)
         major_domain_clients.remove(client_index)
+    while (len(selected_other_domain_clients)+len(selected_major_domain_clients)) < num_selected_client and other_domains_clients:
+        client_index = np.random.choice(other_domains_clients)
+        selected_other_domain_clients.append(client_index)
+        other_domains_clients.remove(client_index)
+    
 
     selected_clients = selected_major_domain_clients + selected_other_domain_clients
     if not len(selected_clients)==num_selected_client:
