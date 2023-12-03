@@ -6,10 +6,10 @@ import argparse
 import numpy as np
 
 def parse_arguments():
-    parser = argparse.ArgumentParser(description="FLdetect")
+    parser = argparse.ArgumentParser(description="EE616")
     parser.add_argument("--seed", type=int, default=0,
                         help="Seed for reproducibility")
-    parser.add_argument("--dataset", type=str, default="cifar10",
+    parser.add_argument("--dataset", type=str, default="cifar10c",
                         help="Dataset to use to train")
     parser.add_argument("--model", type=str, default="resnet18",
                         help="Model structure")
@@ -21,13 +21,13 @@ def parse_arguments():
     # For FL data distribution
     parser.add_argument("--data_distribution", type=str, default="iid",
                         help="Choose data distribution: iid, non_iid_class, non_iid_domain, non_iid")
-    parser.add_argument("--num_user", type=int, default=100,
+    parser.add_argument("--num_user", type=int, default=200,
                         help="Number of artificial clients in FL training")
-    parser.add_argument("--ratio_samples_per_client", type=float, default=0.5,
+    parser.add_argument("--ratio_samples_per_client", type=float, default=0.7,
                         help="Ratio of num samples per client: ratio*(num_samples/num_clients)")
     parser.add_argument("--num_classes_per_client", type=int, default=2,
                         help="Number of classes each client will have in non-iid setting")
-    parser.add_argument("--num_domains_per_client", type=int, default=2,
+    parser.add_argument("--num_domains_per_client", type=int, default=1,
                         help="Number of domains each client will have in non-iid setting")
     
     # For FL training

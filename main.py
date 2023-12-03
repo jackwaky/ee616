@@ -14,6 +14,7 @@ from model.get_model import get_model
 # Server
 from server.server import Server
 from server.MOON_server import MOON_Server
+from server.Domain_MOON_Server import Domain_MOON_Server
 
 import configs
 from arg_parser import parse_arguments
@@ -48,6 +49,8 @@ def main(args):
         server = Server(args, model, train_dataset, test_dataset, user_group_train, user_group_test)
     elif args.method == "moon":
         server = MOON_Server(args, model, train_dataset, test_dataset, user_group_train, user_group_test)
+    elif args.method == "domain-moon":
+        server = Domain_MOON_Server(args, model, train_dataset, test_dataset, user_group_train, user_group_test)
     else:
         raise NotImplementedError
     server.train()

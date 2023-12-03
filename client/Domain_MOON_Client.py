@@ -8,8 +8,9 @@ import torch.nn as nn
 
 import random
 
-class MOON_Client():
-    def __init__(self, args, train_dataset, test_dataset, user_datapoint_indices_train, user_datapoint_indices_test, user_idx):
+class Domain_MOON_Client():
+    def __init__(self, args, train_dataset, test_dataset, user_datapoint_indices_train, user_datapoint_indices_test,
+                 user_idx):
 
         self.args = args
         self.user_idx = user_idx
@@ -20,10 +21,9 @@ class MOON_Client():
             DatasetSplit(train_dataset, user_datapoint_indices_train), batch_size=args.bs,
             shuffle=True, drop_last=True)
 
-        self.test_dataloader = DataLoader(test_dataset, 
-            batch_size=args.bs,
-            shuffle=False, drop_last=True)
-
+        self.test_dataloader = DataLoader(test_dataset,
+                                          batch_size=args.bs,
+                                          shuffle=False, drop_last=True)
 
     def local_train(self, model, previous_model):
         global_model = copy.deepcopy(model)
@@ -56,7 +56,6 @@ class MOON_Client():
                 _, feature_local, out = model(inputs)
                 _, feature_pos, _ = global_model(inputs)
 
-
                 posi = cos(feature_local, feature_pos)
                 logits = posi.reshape(-1, 1)
 
@@ -65,7 +64,7 @@ class MOON_Client():
                 nega = cos(feature_local, feature_prev)
                 logits = torch.cat((logits, nega.reshape(-1, 1)), dim=1)
 
-                logits /= self.args.temperature # temperature in MOON
+                logits /= self.args.temperature  # temperature in MOON
                 targets = torch.zeros(inputs.size(0)).to(self.args.device).long()
 
                 loss2 = self.args.mu * self.criterion(logits, targets)
@@ -82,6 +81,7 @@ class MOON_Client():
 
         return model.state_dict(), sum(epoch_loss) / len(epoch_loss)
 
+
 class DatasetSplit(Dataset):
     def __init__(self, all_dataset, curr_user_indices):
         self.all_dataset = all_dataset  # data of all clients
@@ -91,5 +91,6 @@ class DatasetSplit(Dataset):
         return len(self.curr_user_indices)
 
     def __getitem__(self, item):
-        input_data, label, _ = self.all_dataset[self.curr_user_indices[item]]  # only items related to the current user (not all clients)
+        input_data, label, _ = self.all_dataset[
+            self.curr_user_indices[item]]  # only items related to the current user (not all clients)
         return input_data.clone().detach(), label.clone().detach()
